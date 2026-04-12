@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
-ARG PYTHON_NAME="python3.13"
-ARG PYTHON_VERSION="3.13.2-1"
-ARG DIST_NAME="sid"
+ARG PYTHON_NAME="python3.14"
+ARG PYTHON_VERSION="3.14.3-3"
+ARG DIST_NAME="forky"
 
 # -------------------- Preparation --------------------
-FROM debian:bookworm-slim AS pre-build
+FROM debian:trixie-slim AS pre-build
 ARG DIST_NAME
 RUN echo "\
 Types: deb deb-src\n\
@@ -37,7 +37,7 @@ RUN	apt-get source --download-only ${PYTHON_NAME}=${PYTHON_VERSION} && \
 WORKDIR python-source
 ADD patches/*.diff debian/patches
 ADD patches/series debian/patches/series_extra
-RUN	sed -i '/^ensurepip-disabled.diff$/s/^/#/' debian/patches/series && \
+RUN	sed -i '/ensurepip/d' debian/patches/series && \
 	cat debian/patches/series_extra >> debian/patches/series
 RUN dpkg-source --before-build .
 
@@ -110,11 +110,12 @@ RUN DEB_BUILD_PROFILES='nocheck nobench' DEB_BUILD_OPTIONS='nocheck nobench' mk-
 # Hacky way to remove that:
 RUN	mkdir rebuild-cross-deps && \
 	dpkg-deb -R ${PYTHON_NAME}-cross-build-deps*.deb rebuild-cross-deps && \
-	sed -i 's/build-essential:[^ ]* //' rebuild-cross-deps/DEBIAN/control && \
+	sed -i 's/build-essential:[^ ]* //;s/ clang-19,//;s/ llvm-19,//' rebuild-cross-deps/DEBIAN/control && \
 	dpkg-deb -b rebuild-cross-deps
 RUN apt-get install -y --no-install-recommends ./rebuild-cross-deps.deb
+RUN apt-get install -y clang-19 llvm-19
 
-RUN DEB_BUILD_PROFILES='nocheck nobench' DEB_BUILD_OPTIONS='nocheck nobench' debuild -b -uc -us -a${ARCH} --ignore-builtin-builddeps
+RUN DEB_BUILD_PROFILES='nocheck nobench' DEB_BUILD_OPTIONS='nocheck nobench' debuild -b -uc -us -d -a${ARCH} --ignore-builtin-builddeps
 RUN mkdir debs && mv ../*.deb debs
 
 # -------------------- Export crossbuild artifacts --------------------

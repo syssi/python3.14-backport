@@ -1,9 +1,9 @@
 Description: Re-enable ensurepip inside this package
-Author: Pascal Roeleven <dev@pascalroeleven.nl>
+Author: Sebastian Muszynski <basti@linkt.de>
 
 --- a/debian/rules
 +++ b/debian/rules
-@@ -330,7 +330,7 @@
+@@ -334,7 +334,7 @@
  	test_threading test_threading_local test_threadsignals \
  	test_concurrent_futures test_ctypes \
  	test_dbm_dumb test_dbm_ndbm test_pydoc test_sundry \
@@ -12,7 +12,7 @@ Author: Pascal Roeleven <dev@pascalroeleven.nl>
  
  # TODO: these hang/fail with new OpenSSL
  PROFILE_EXCLUDES += \
-@@ -575,7 +574,7 @@
+@@ -583,7 +583,7 @@
  endif
  TESTOPTS = -j 1 -w -u$(TEST_RESOURCES) --timeout=3600
  TEST_EXCLUDES =
@@ -21,7 +21,7 @@ Author: Pascal Roeleven <dev@pascalroeleven.nl>
  ifeq ($(on_buildd),yes)
    TEST_EXCLUDES += test_tcl test_codecmaps_cn test_codecmaps_hk \
          test_codecmaps_jp test_codecmaps_kr test_codecmaps_tw \
-@@ -910,11 +909,6 @@
+@@ -920,10 +920,6 @@
  	rm -rf $(d)/usr/lib/python$(VER)/ctypes/macholib
  	rm -f $(d)/usr/share/man/man1/python3.1
  
@@ -29,13 +29,12 @@ Author: Pascal Roeleven <dev@pascalroeleven.nl>
 -	  echo "don't ship the prebuilt ensurepip/_bundled wheels."; \
 -	  rm -rf $(d)/$(scriptdir)/ensurepip/_bundled; \
 -	fi
--
+ 
  	: # cannot build it, zlib maintainer won't provide a mingw build
  	find $(d) -name 'wininst*.exe' | xargs -r rm -f
- 
 --- a/Lib/ensurepip/__init__.py
 +++ b/Lib/ensurepip/__init__.py
-@@ -44,7 +44,7 @@
+@@ -16,7 +16,7 @@
  # policies recommend against bundling dependencies. For example, Fedora
  # installs wheel packages in the /usr/share/python-wheels/ directory and don't
  # install the ensurepip._bundled package.
@@ -46,23 +45,23 @@ Author: Pascal Roeleven <dev@pascalroeleven.nl>
      _WHEEL_PKG_DIR = None
 --- a/debian/control
 +++ b/debian/control
-@@ -55,8 +55,6 @@
+@@ -59,8 +59,6 @@
  Multi-Arch: allowed
  Priority: optional
- Depends: python3.13 (= ${binary:Version}),
+ Depends: python3.14 (= ${binary:Version}),
 - python3-pip-whl (>= 22.2),
-- python3-setuptools-whl,
+- python3-setuptools-whl (>= 70.1),
   ${shlibs:Depends}, ${misc:Depends},
  Breaks: python3-pip (<< 1.5.6-4)
- Description: Interactive high-level object-oriented language (pyvenv binary, version 3.13)
+ Description: Interactive high-level object-oriented language (pyvenv binary, version 3.14)
 --- a/debian/control.in
 +++ b/debian/control.in
-@@ -55,8 +55,6 @@
+@@ -59,8 +59,6 @@
  Multi-Arch: allowed
  Priority: @PRIO@
  Depends: @PVER@ (= ${binary:Version}),
 - python3-pip-whl (>= 22.2),
-- python3-setuptools-whl,
+- python3-setuptools-whl (>= 70.1),
   ${shlibs:Depends}, ${misc:Depends},
  Breaks: python3-pip (<< 1.5.6-4)
  Description: Interactive high-level object-oriented language (pyvenv binary, version @VER@)

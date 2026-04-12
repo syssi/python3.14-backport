@@ -1,5 +1,5 @@
-name: Build all packages
-on: 
+name: Build and publish packages
+on:
   workflow_dispatch:
     inputs:
       changelog_message:
@@ -27,7 +27,7 @@ jobs:
               native = "target:native"
             }
             dockerfile-inline = <<-EOT
-            FROM debian:bookworm-slim AS github_output
+            FROM debian:trixie-slim AS github_output
             COPY --from=native /github_outpu[t] /github_output
             EOT
             inherits = ["native"]
@@ -89,3 +89,88 @@ jobs:
         with:
           name: crossbuild-${{ matrix.arch }}-debs
           path: artifacts
+
+  publish:
+    runs-on: ubuntu-latest
+    name: Publish packages
+    needs: [native, crossbuild]
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: new-debs
+          merge-multiple: true
+
+      - name: Get package version
+        id: pkg
+        run: |
+          deb=$(ls new-debs/python3.14_*.deb | head -1)
+          ver=$(echo "$deb" | sed 's/.*python3\.14_\([^_]*\)_.*/\1/')
+          tag=$(echo "$ver" | tr '~' '-')
+          echo "version=$ver" >> $GITHUB_OUTPUT
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.pkg.outputs.tag }}
+          name: Python 3.14 ${{ steps.pkg.outputs.version }}
+          files: new-debs/*.deb
+
+      - name: Install APT tools
+        run: sudo apt-get install -y --no-install-recommends apt-utils dpkg-dev
+
+      - name: Import GPG key
+        run: echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+
+      - name: Build APT repo tree
+        run: |
+          mkdir -p apt-repo/pool/main/p/python3.14
+          gpg --armor --export > apt-repo/syssi-python3.14-backport.gpg
+          cp new-debs/*.deb apt-repo/pool/main/p/python3.14/
+
+          cd apt-repo
+          for arch in amd64 arm64 armhf; do
+            mkdir -p dists/trixie-backports/main/binary-$arch
+            dpkg-scanpackages --arch $arch pool/ 2>/dev/null \
+              > dists/trixie-backports/main/binary-$arch/Packages
+            gzip -kf dists/trixie-backports/main/binary-$arch/Packages
+          done
+
+          cat > /tmp/release.conf << 'EOF'
+          APT::FTPArchive::Release::Origin "syssi";
+          APT::FTPArchive::Release::Label "python3.14-backport";
+          APT::FTPArchive::Release::Suite "trixie-backports";
+          APT::FTPArchive::Release::Codename "trixie-backports";
+          APT::FTPArchive::Release::Architectures "amd64 arm64 armhf";
+          APT::FTPArchive::Release::Components "main";
+          APT::FTPArchive::Release::Description "Python 3.14 backport for Debian trixie";
+          APT::FTPArchive::Release::ValidTime 63072000;
+          EOF
+          apt-ftparchive -c /tmp/release.conf release dists/trixie-backports/ \
+            > dists/trixie-backports/Release
+
+          gpg --batch --yes --armor --detach-sign \
+            --output dists/trixie-backports/Release.gpg \
+            dists/trixie-backports/Release
+          gpg --batch --yes --armor --clearsign \
+            --output dists/trixie-backports/InRelease \
+            dists/trixie-backports/Release
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apt-repo
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

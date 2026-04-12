@@ -1,0 +1,30 @@
+Description: Adapt build dependencies for Debian trixie
+Author: Sebastian Muszynski <basti@linkt.de>
+
+--- a/debian/rules
++++ b/debian/rules
+@@ -163,7 +163,7 @@
+ RANLIB=$(DEB_HOST_GNU_TYPE)-ranlib
+ 
+ LLVM_ARCHS = amd64 arm64
+-LLVM_VERSION = 21
++LLVM_VERSION = 19
+ 
+ # configure and dtrace consume these
+ export CC CXX
+--- a/debian/control
++++ b/debian/control
+@@ -25,11 +25,10 @@
+   tzdata <!nocheck>,
+   systemtap-sdt-dev [!hurd-amd64 !hurd-i386],
+   valgrind-if-available,
+-  clang-21 [amd64 arm64],
+-  llvm-21 [amd64 arm64],
++  clang-19 [amd64 arm64],
++  llvm-19 [amd64 arm64],
+ Build-Depends-Indep: python3-sphinx (>= 8.2),
+   python3-sphinx-notfound-page,
+-  python3-sphinxext-opengraph,
+    python3-docs-theme, texinfo
+ Standards-Version: 4.7.2
+ Vcs-Browser: https://salsa.debian.org/cpython-team/python3

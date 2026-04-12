@@ -1,25 +1,29 @@
 Description: This is needed for crossbuilding packages
-Author: Pascal Roeleven <dev@pascalroeleven.nl>
+Author: Sebastian Muszynski <basti@linkt.de>
 
 --- a/debian/control
 +++ b/debian/control
-@@ -23,7 +23,7 @@
-   tzdata <!nocheck>,
-   systemtap-sdt-dev [!hurd-amd64 !hurd-i386],
+@@ -27,9 +27,9 @@
    valgrind-if-available,
--Build-Depends-Indep: python3-sphinx, python3-docs-theme, texinfo
-+Build-Depends-Indep: python3-sphinx:all, python3-docs-theme:all, texinfo
- Standards-Version: 4.7.0
+   clang-19 [amd64 arm64],
+   llvm-19 [amd64 arm64],
+-Build-Depends-Indep: python3-sphinx (>= 8.2),
+-  python3-sphinx-notfound-page,
+-   python3-docs-theme, texinfo
++Build-Depends-Indep: python3-sphinx:all (>= 8.2),
++  python3-sphinx-notfound-page:all,
++   python3-docs-theme:all, texinfo
+ Standards-Version: 4.7.2
  Vcs-Browser: https://salsa.debian.org/cpython-team/python3
  Vcs-Git: https://salsa.debian.org/cpython-team/python3.git
 --- a/debian/rules
 +++ b/debian/rules
-@@ -1452,7 +1452,7 @@
+@@ -1426,7 +1426,7 @@
  	done
  
  	: # devhelp docs
 -	cd $(buildd_static) && ./python ../debian/pyhtml2devhelp.py \
-+	cd $(buildd_static) && python3.13 ../debian/pyhtml2devhelp.py \
++	cd $(buildd_static) && python3.14 ../debian/pyhtml2devhelp.py \
  		../$(d_doc)/usr/share/doc/$(p_base)/html index.html $(VER) \
  		> ../$(d_doc)/usr/share/doc/$(p_base)/html/$(PVER).devhelp
  	gzip -9nv $(d_doc)/usr/share/doc/$(p_base)/html/$(PVER).devhelp

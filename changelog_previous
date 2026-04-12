@@ -1,5 +1,5 @@
-python3.13 (3.13.2-1~bpo12+1) bookworm-backports; urgency=medium
+python3.14 (3.14.3-3~bpo13+1) trixie-backports; urgency=medium
 
-  * Rebuild for bookworm-backports.
+  * Rebuild for trixie-backports.
 
- -- Pascal Roeleven <dev@pascalroeleven.nl>  Wed, 05 Feb 2025 13:47:51 +0000
+ -- Sebastian Muszynski <basti@linkt.de>  Sat, 11 Apr 2026 00:00:00 +0000
