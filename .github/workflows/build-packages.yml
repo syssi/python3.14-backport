@@ -12,10 +12,10 @@ jobs:
     name: Build native packages
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
         with:
           driver-opts: env.BUILDKIT_STEP_LOG_MAX_SIZE=4194304
 
@@ -38,7 +38,7 @@ jobs:
           EOF
 
       - name: Build the Docker image
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@a66e1c87e2eca0503c343edf1d208c716d54b8a8 # v7.1.0
         env:
           NAME: "${{ secrets.changelog_name }}"
           EMAIL: "${{ secrets.changelog_email }}"
@@ -52,7 +52,7 @@ jobs:
       - name: Output GA specific messages
         run: docker run --rm github_output bash -c "touch /github_output && cat /github_output"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: native-debs
           path: artifacts
@@ -66,15 +66,15 @@ jobs:
         arch: [armhf, arm64]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
         with:
           driver-opts: env.BUILDKIT_STEP_LOG_MAX_SIZE=4194304
 
       - name: Build the Docker image
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@a66e1c87e2eca0503c343edf1d208c716d54b8a8 # v7.1.0
         env:
           NAME: "${{ secrets.changelog_name }}"
           EMAIL: "${{ secrets.changelog_email }}"
@@ -85,7 +85,7 @@ jobs:
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: crossbuild-${{ matrix.arch }}-debs
           path: artifacts
@@ -103,9 +103,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: new-debs
           merge-multiple: true
@@ -120,7 +120,7 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           tag_name: ${{ steps.pkg.outputs.tag }}
           name: Python 3.14 ${{ steps.pkg.outputs.version }}
@@ -166,11 +166,11 @@ jobs:
             --output dists/trixie-backports/InRelease \
             dists/trixie-backports/Release
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: apt-repo
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
