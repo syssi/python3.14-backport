@@ -44,6 +44,9 @@ jobs:
           EMAIL: "${{ secrets.changelog_email }}"
           CHANGE: "${{ inputs.changelog_message }}"
         with:
+          files: |
+            ./docker-bake.hcl
+            ./docker-bake.override.hcl
           targets: native, github_output
           set: |
             *.cache-from=type=gha
@@ -80,6 +83,7 @@ jobs:
           EMAIL: "${{ secrets.changelog_email }}"
           CHANGE: "${{ inputs.changelog_message }}"
         with:
+          files: ./docker-bake.hcl
           targets: crossbuild-${{ matrix.arch }}
           set: |
             *.cache-from=type=gha
