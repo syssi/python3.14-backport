@@ -112,7 +112,7 @@ jobs:
           tag_name: ${{ steps.pkg.outputs.tag }}
           name: Python 3.14 ${{ steps.pkg.outputs.version }}
           files: new-debs/*.deb
-          update_release_files: true
+          overwrite_files: true
 
       - name: Install APT tools
         run: sudo apt-get install -y --no-install-recommends apt-utils dpkg-dev
