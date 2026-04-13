@@ -34,7 +34,14 @@ Author: Sebastian Muszynski <basti@linkt.de>
  	find $(d) -name 'wininst*.exe' | xargs -r rm -f
 --- a/Lib/ensurepip/__init__.py
 +++ b/Lib/ensurepip/__init__.py
-@@ -16,7 +16,7 @@
+@@ -10,13 +10,13 @@
+ 
+ 
+ __all__ = ["version", "bootstrap"]
+-_PIP_VERSION = "26.0.1"
++_PIP_VERSION = "25.3"
+ 
+ # Directory of system wheel packages. Some Linux distribution packaging
  # policies recommend against bundling dependencies. For example, Fedora
  # installs wheel packages in the /usr/share/python-wheels/ directory and don't
  # install the ensurepip._bundled package.
@@ -43,6 +50,7 @@ Author: Sebastian Muszynski <basti@linkt.de>
      _WHEEL_PKG_DIR = Path(_pkg_dir).resolve()
  else:
      _WHEEL_PKG_DIR = None
+
 --- a/debian/control
 +++ b/debian/control
 @@ -59,8 +59,6 @@
