@@ -14,11 +14,16 @@ variable "CHANGE" {
   default = "$CHANGE"
 }
 
+variable "BPO_N" {
+  default = "1"
+}
+
 target "base" {
   args = {
     NAME = NAME
     EMAIL = EMAIL
     CHANGE = CHANGE
+    BPO_N = BPO_N
   }
   output = ["type=local,dest=artifacts"]
 }

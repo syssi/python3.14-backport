@@ -25,6 +25,7 @@ jobs:
           NAME: "${{ secrets.changelog_name }}"
           EMAIL: "${{ secrets.changelog_email }}"
           CHANGE: "${{ inputs.changelog_message }}"
+          BPO_N: "${{ github.run_number }}"
         with:
           files: |
             ./docker-bake.hcl
@@ -64,6 +65,7 @@ jobs:
           NAME: "${{ secrets.changelog_name }}"
           EMAIL: "${{ secrets.changelog_email }}"
           CHANGE: "${{ inputs.changelog_message }}"
+          BPO_N: "${{ github.run_number }}"
         with:
           files: ./docker-bake.hcl
           targets: crossbuild-${{ matrix.arch }}

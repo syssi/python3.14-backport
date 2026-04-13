@@ -41,14 +41,11 @@ RUN	sed -i '/ensurepip/d' debian/patches/series && \
 	cat debian/patches/series_extra >> debian/patches/series
 RUN dpkg-source --before-build .
 
-ADD changelog_previous .
-RUN if [ -s changelog_previous ]; then echo "$(cat changelog_previous)\n\
-\n\
-$(cat debian/changelog)" > debian/changelog; fi
 ARG NAME
 ARG EMAIL
 ARG CHANGE
-RUN dch --bpo "$CHANGE"
+ARG BPO_N=1
+RUN dch --newversion "${PYTHON_VERSION}~bpo13+${BPO_N}" "${CHANGE:-Rebuild for trixie-backports.}"
 
 # -------------------- Build preperation --------------------
 FROM pre-build AS build-system
